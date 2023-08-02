@@ -1,0 +1,980 @@
+#set(viewOnly = true)
+<div id="promotionList">
+     <div class="items">
+     </div>
+</div>
+
+<script>
+     $(function () {
+          let loadIndex3 = layer.load(0, { shade: [0.4, '#000'] });
+          current_lang = getCookie("EPWEB_LANG");
+          $.ajax({
+               url: "/account/recharge/promotionList",
+               type: 'GET',
+               async: true,
+               success: function (r) {
+                    if (r.data) {
+                         //categorize
+                         data = r.data;
+                         let bonusPkgsList = {};
+
+                         //Method 1 - Each Loop
+                         /*
+                               bonusPkgsList['freeCredit'] = [];
+                               bonusPkgsList['sport'] = [];
+                               bonusPkgsList['casino'] = [];
+                               bonusPkgsList['slots'] = [];
+                               bonusPkgsList['games'] = [];
+                               bonusPkgsList['lotto'] = [];
+                               bonusPkgsList['other'] = [];
+
+                               $.each(data, function(index, eachObj){
+                                    if(eachObj.bonusType && eachObj.bonusType == 2){
+                                         bonusPkgsList['freeCredit'].push(eachObj);
+                                         return;//skip if data is free credit type
+                                    }
+
+                                    if(!eachObj.bonusGameCat){
+                                         bonusPkgsList['other'].push(eachObj);
+                                         return;//skip if null
+                                    }
+
+                                    let included = false;
+                                    if(eachObj.bonusGameCat.includes("uVVhVm2I")){
+                                         bonusPkgsList['sport'].push(eachObj);
+                                         included = true;
+                                    }
+                                    if(eachObj.bonusGameCat.includes("DT4871bD")){
+                                         bonusPkgsList['casino'].push(eachObj);
+                                         included = true;
+                                    }
+                                    if(eachObj.bonusGameCat.includes("Lbg95amI")){
+                                         bonusPkgsList['slots'].push(eachObj);
+                                         included = true;
+                                    }
+                                    if(eachObj.bonusGameCat.includes("TKHnAamK")){
+                                         bonusPkgsList['games'].push(eachObj);
+                                         included = true;
+                                    }
+                                    if(eachObj.bonusGameCat.includes("RaFcFO9A")){
+                                         bonusPkgsList['lotto'].push(eachObj);
+                                         included = true;
+                                    }
+
+                                    if(!included){
+                                         bonusPkgsList['other'].push(eachObj);
+                                    }
+                               });
+                         */
+
+                         //Method 2 - Underscore JS
+                         bonusPkgsList['freeCredit'] = _.filter(data, function (eachObj) { return eachObj.bonusType && eachObj.bonusType == 2 });
+                         bonusPkgsList['sport'] = _.filter(data, function (eachObj) { return (!eachObj.bonusType || eachObj.bonusType == 1) && eachObj.bonusGameCat && eachObj.bonusGameCat.includes("uVVhVm2I") });
+                         bonusPkgsList['casino'] = _.filter(data, function (eachObj) { return (!eachObj.bonusType || eachObj.bonusType == 1) && eachObj.bonusGameCat && eachObj.bonusGameCat.includes("DT4871bD") });
+                         bonusPkgsList['slots'] = _.filter(data, function (eachObj) { return (!eachObj.bonusType || eachObj.bonusType == 1) && eachObj.bonusGameCat && eachObj.bonusGameCat.includes("Lbg95amI") });
+                         bonusPkgsList['games'] = _.filter(data, function (eachObj) { return (!eachObj.bonusType || eachObj.bonusType == 1) && eachObj.bonusGameCat && eachObj.bonusGameCat.includes("TKHnAamK") });
+                         bonusPkgsList['lotto'] = _.filter(data, function (eachObj) { return (!eachObj.bonusType || eachObj.bonusType == 1) && eachObj.bonusGameCat && eachObj.bonusGameCat.includes("RaFcFO9A") });
+                         bonusPkgsList['other'] = _.filter(data, function (eachObj) { return (!eachObj.bonusType || eachObj.bonusType == 1) && !eachObj.bonusGameCat });
+
+
+                         $.each(data, function (index, eachObj) {
+                              console.log(eachObj.title + ": " + eachObj.bonusType + " " + eachObj.bonusGameCat);
+                              if (eachObj.bonusType && eachObj.bonusType == 2) {
+                                   bonusPkgsList['freeCredit'].push(eachObj);
+                                   return;//skip if data is free credit type
+                              }
+
+                              if (!eachObj.bonusGameCat) {
+                                   bonusPkgsList['other'].push(eachObj);
+                                   return;//skip if null
+                              }
+
+                              let included = false;
+                              if (eachObj.bonusGameCat.includes("uVVhVm2I")) {
+                                   bonusPkgsList['sport'].push(eachObj);
+                                   included = true;
+                              }
+                              if (eachObj.bonusGameCat.includes("DT4871bD")) {
+                                   bonusPkgsList['casino'].push(eachObj);
+                                   included = true;
+                              }
+                              if (eachObj.bonusGameCat.includes("Lbg95amI")) {
+                                   bonusPkgsList['slots'].push(eachObj);
+                                   included = true;
+                              }
+                              if (eachObj.bonusGameCat.includes("TKHnAamK")) {
+                                   bonusPkgsList['games'].push(eachObj);
+                                   included = true;
+                              }
+                              if (eachObj.bonusGameCat.includes("RaFcFO9A")) {
+                                   bonusPkgsList['lotto'].push(eachObj);
+                                   included = true;
+                              }
+
+                              if (!included) {
+                                   bonusPkgsList['other'].push(eachObj);
+                              }
+                         });
+
+                         console.log("bonusPkgsList ", bonusPkgsList)
+
+                         $.each(bonusPkgsList, function (key, bonusPkgs) {
+                              let title =
+                                   key == 'freeCredit' ? `<i class="icon-luckybag"></i><span style="color:goldenrod;">${getMessage('lbl_freeCredit')}</span><i class="icon-luckygold"></i>`
+                                        : key == 'other' ? `<i class="icon-luckybag"></i>${getMessage('lbl_other')}`
+                                             : `<i class="icon-luckybag"></i>${getMessage(key) + " " + getMessage('lbl_bonus')}<i class="icon-hot blink"></i>`;
+                              $("#promotionList").append(`
+					            				<div class="items ${key}">
+					            					<h5 class="box-title w100p text-uppercase">
+					            						${title}
+					            					</h5>
+					            				</div>`);
+                              generateHtml("." + key, r, bonusPkgs);
+                         });
+
+                         let categoryNames = _.pluck(_.flatten(_.pluck(data, "package_game")), "game_category_name");
+                         let uniqueCategoryNames = Array.from(new Set(categoryNames)).sort();
+
+                         // Select box
+                         // Navigation tab
+                         $.each(uniqueCategoryNames, function (index, value) {
+                              if (value == "") return;//skip if empty value
+                              list = `<li class="tab-wrapper" data-id="${value}"><p>${getMessage('lbl_' + value)}</p></li>`
+                              $(".game_category_name-list").append(list);
+                         });
+
+                         // Trigger Action
+                         $('.game_category_name-list li').on('click', function () {
+                              $('.gameType-selectbox').val('');
+
+                              // remove active class from all li elements
+                              $('.game_category_name-list li').removeClass('active');
+
+                              // add active class to clicked li element
+                              $(this).addClass('active');
+
+                              // do something with dataId
+                              promotion_selector_trigger('game_category_name');
+                         });
+
+                         $('.gameType-selectbox').on('change', function () {
+                              $(this).find('option:selected').prop('selected', true);
+                              promotion_selector_trigger('game_type');
+                         });
+
+                         setInterval(countdown, 1000);
+                    } else {
+                         utils.alert(r.msg, 'error');
+                    }
+                    layer.close(loadIndex3);
+               }
+          });
+     });
+
+     function generateHtml(eleSelector, r, data) {
+          let activePkg = r.pkgInfo;
+          let currency = r.currency;
+          let timeNow = r.nowTime;
+
+          $.each(data, function (index, eachObj) {
+               let day = "-";
+               let hour = "-";
+               let min = "-";
+               let sec = "-";
+               let endDate = eachObj.endDate;
+               if (endDate && endDate != "null") {
+                    let _endDate = new moment(endDate);
+                    let now = moment();
+                    let duration = moment.duration(_endDate.diff(now));
+                    day = duration.get('days');
+                    hour = duration.get('hours');
+                    min = duration.get('minutes');
+                    sec = duration.get('seconds');
+               } else {
+                    endDate = "";
+               }
+
+               if (eachObj.selfType == 0) {
+                    let cancelConditionMsg = eachObj.selfCond + "%";
+               } else if (eachObj.selfType == 1) {
+                    let cancelConditionMsg = "$" + eachObj.selfCond;
+               }
+
+               gameId_arr = [];
+               gameType_arr = [];
+               gameCategoryName_arr = [];
+               gameCatLabel_arr = [];
+               $.each(eachObj.package_game, function (i, game) {
+                    gameCatLabel_arr.push(`<span class="label label-warning">${game.game_category_name}</span>`);
+                    gameCategoryName_arr.push(`data-gamecategory-name-${game.game_category_name}`);
+                    gameId_arr.push(`data-gameid-${game.gameId}`);
+                    gameType_arr.push(`data-gametype-${game.type}`);
+               });
+
+               gameId_unique = Array.from(new Set(gameId_arr)).sort();
+               gameType_unique = Array.from(new Set(gameType_arr)).sort();
+               gameCategoryName_unique = Array.from(new Set(gameCategoryName_arr)).sort();
+               gameCatLabel_unique = Array.from(new Set(gameCatLabel_arr)).sort();
+
+
+               let bonusRewardIndicator = "";
+
+               if (bonusSwitch == 1) {
+                    bonusHtml = `<br><a href="javascript:getPkgBonus('${eachObj.id}', '${eachObj.title}')" class="label label-sm label-primary">${getMessage('lbl_bonus')}</a>`;
+                    if (bonusCond == null || bonusCond == 2) {
+                         bonusCondHtml = "#(getMessage('lbl_rollover', lang)): x" + eachObj.bonusRollover;
+                    } else if (bonusCond == 1) {
+                         bonusCondHtml = "#(getMessage('lbl_minimumDeposit', lang)): " + eachObj.bonusDeposit + "#(masterInfo.currency.toUpperCase())";
+                    }
+
+                    if (bonusReward == null || bonusReward == 2) {
+                         bonusRewardHtml = " <i class='fa fa-arrow-right'></i> " +
+                              "#(getMessage('lbl_bonus', lang)): " + eachObj.bonus + "% / #(getMessage('lbl_maxBonus', lang)): " + eachObj.bonusMax + "#(masterInfo.currency.toUpperCase())";
+
+                         bonusRewardIndicator = `#(getMessage('lbl_bonus', lang)) <span style="font-size: 1.3em;">${eachObj.bonus}%</span>`;
+                    } else if (bonusReward == 1) {
+                         bonusRewardHtml = " <i class='fa fa-arrow-right'></i> " +
+                              "#(getMessage('lbl_bonus', lang)): " + eachObj.bonusAmount + " #(masterInfo.currency.toUpperCase())";
+
+                         bonusRewardIndicator = `#(getMessage('lbl_bonus', lang)) <span style="font-size: 1.3em;">#(masterInfo.currency.toUpperCase()) ${eachObj.bonusAmount}</span>`;
+                    }
+               }
+               bonusHtml = bonusHtml + `<span id='bonusMsg_${eachObj.id}'>` + bonusCondHtml + bonusRewardHtml + `</span>`;
+
+               /*Comm Data*/
+               let commSwitch = eachObj.commSwitch;
+               let commHtml = "";
+               if (commSwitch == 1) {
+                    commHtml = `<br/><a href="javascript:getPkgComms('${eachObj.id}', '${eachObj.title}')" class="label label-sm label-primary">${getMessage('lbl_commission') + " " + getMessage('lbl_override')}</a>`;
+               }
+
+               /*Button Data*/
+               let disabled = "";
+               let buttonHtml = `<button type="button" class="btn btn-success" onclick='utils.gourl("/login")'>
+											<i class="fas fa-check-circle"></i>  ${getMessage('lbl_chooseThisPackage')}
+			              				 </button>`;
+               disabled = (!eachObj.isValidTarget || !eachObj.isValidSchedule) ? "disabled" : "";
+
+
+               //Terms And Conditions
+               let tabNavHtml =
+                    `<ul  class="nav nav-tabs">
+								<li class="active"><a href="#term_${eachObj.id}" data-toggle="tab">${getMessage('lbl_termsAndConditions')}</a></li>
+								<li><a href="#schedule_${eachObj.id}" data-toggle="tab">${getMessage('lbl_openingTime')}</a></li>
+								<li><a href="#target_${eachObj.id}" data-toggle="tab">${getMessage('lbl_eligibleCriteria')}</a></li>
+							</ul>`;
+               let title = eachObj.titles[current_lang] ? eachObj.titles[current_lang] : eachObj.titles["en"];
+               let image = eachObj.images[current_lang] ? eachObj.images[current_lang] : eachObj.images["en"];
+               let mode = eachObj.modes[current_lang] ? eachObj.modes[current_lang] : eachObj.modes["en"];
+               let term = eachObj.terms[current_lang] ? eachObj.terms[current_lang] : eachObj.terms["en"];
+               if (!image) { image = ""; }
+               if (!term) { term = "-"; }
+               let openingTime = !eachObj.startDate || !eachObj.endDate ? getMessage("lbl_forever") : eachObj.startDate + " - " + eachObj.endDate;
+
+               let targetDetails = eachObj.targetDetails;
+               let targetHtml = `<h4><i class="fa fa-users" aria-hidden="true"></i><span>${getMessage('lbl_eligibleCriteria')}</span></h4>`;
+               let targetLabel = "";
+               let targetMsg = "";
+               if (targetDetails) {
+                    let targetType = targetDetails.type;
+                    let minimum = targetDetails.min;
+                    let maximum = targetDetails.max;
+                    let targetDay = targetDetails.day;
+                    let unit = targetDetails.unit;
+                    if (unit && unit == "currency") unit = "#(masterInfo.currency.toUpperCase())";
+                    /* console.log("pkgTitle: " + title + "; " + targetType + " " + minimum + " - " + maximum + " in " + targetDay + " targetDays"); */
+                    if (!minimum && minimum !== 0 && !maximum && maximum !== 0 && !targetDay && targetDay !== 0) {
+                         targetMsg = `${getMessage(targetType)}`;
+                    } else {
+                         if (minimum == maximum) {
+                              targetMsg = `${getMessage(targetType)} ${minimum} ${getMessage(unit)} ${getMessage("lbl_inPast")} ${targetDay} ${getMessage("lbl_days")}`;
+                         } else {
+                              targetMsg = `${getMessage(targetType)} ${getMessage("lbl_between")} ${minimum} - ${maximum} ${getMessage(unit)} ${getMessage("lbl_inPast")} ${targetDay} ${getMessage("lbl_days")}`;
+                         }
+                    }
+                    targetHtml += "<p>" + targetMsg + "</p>";
+                    targetLabel = `
+                			<span class="label label-danger">${getMessage(targetType)}</span>
+                			<span class="labels">
+                                <span class="label" data-toggle="tooltip" data-original-title="${targetMsg}">
+                                    <i class="fa fa-info-circle" aria-hidden="true" style="color:grey;"></i>
+                                </span>
+                            </span>
+                			`;
+               } else {
+                    targetHtml += `<p>${getMessage("lbl_noCriteria")}</p>`
+               }
+
+               let scheduleList = eachObj.scheduleList;
+               let scheduleHtml = `<h4><i class="fa fa-clock" aria-hidden="true"></i> <span>${getMessage('lbl_openingTime')}</span></h4>`;
+               let dailyArr = [];
+               let weeklyArr = [];
+               let monthlyArr = [];
+               if (scheduleList && scheduleList.length > 0) {
+                    $.each(scheduleList, function (index, schedule) {
+                         let type = schedule.type;
+                         let startTime = schedule.startTime;
+                         let endTime = schedule.endTime;
+                         if (type == "daily") {
+                              dailyArr.push(startTime + " - " + endTime);
+                         } else if (type == "weekly") {
+                              let startDay = schedule.startDay;
+                              weeklyArr.push(getMessage("lbl_" + startDay) + " " + startTime + " - " + endTime);
+                         } else if (type == "monthly") {
+                              let startDate = schedule.startDate;
+                              switch (startDate) {
+                                   case 1: startDate += "st"; break;
+                                   case 2: startDate += "nd"; break;
+                                   case 3: startDate += "rd"; break;
+                                   default: startDate += "th"; break;
+                              }
+                              monthlyArr.push(startDate + " " + startTime + " - " + endTime);
+                         }
+                    });
+
+                    $.each(dailyArr, function (index, daily) {
+                         if (index == 0) scheduleHtml += "<br><h5>" + getMessage("lbl_daily") + "</h5>";
+                         scheduleHtml += daily + "<br/>";
+                    });
+
+                    $.each(weeklyArr, function (index, weekly) {
+                         if (index == 0) scheduleHtml += "<br><h5>" + getMessage("lbl_weekly") + "</h5>";
+                         scheduleHtml += weekly + "<br/>";
+                    });
+
+                    $.each(monthlyArr, function (index, monthly) {
+                         if (index == 0) scheduleHtml += "<br><h5>" + getMessage("lbl_monthly") + "</h5>";
+                         scheduleHtml += monthly + "<br/>";
+                    });
+               } else {
+                    scheduleHtml += `<p>${getMessage("24/7")}</p>`;
+               }
+
+               let caption = `#(masterInfo.currency.toUpperCase()) ${eachObj.minDeposit ?? 0}`;
+               if (bonusRewardIndicator) caption = bonusRewardIndicator;
+
+               const gameCategories = _.pluck(eachObj.package_game, 'game_category_name')
+                    .map(category => {
+                         categoryI18n = getMessage(category);
+                         if (category !== categoryI18n) {
+                              return categoryI18n;
+                         }
+                         return category;
+                    }).join(', ');
+
+
+               $.each(eachObj.package_game, function (i, game) {
+                    gameCatLabel_arr.push(`<span class="label label-warning">${game.game_category_name}</span>`);
+                    gameCategoryName_arr.push(`data-gamecategory-name-${game.game_category_name}`);
+                    gameId_arr.push(`data-gameid-${game.gameId}`);
+                    gameType_arr.push(`data-gametype-${game.type}`);
+               });
+
+               gameId_unique = Array.from(new Set(gameId_arr)).sort();
+               gameType_unique = Array.from(new Set(gameType_arr)).sort();
+               gameCategoryName_unique = Array.from(new Set(gameCategoryName_arr)).sort();
+               gameCatLabel_unique = Array.from(new Set(gameCatLabel_arr)).sort();
+
+               let gameId_list = gameId_unique.join(' ');
+               let gameType_list = gameType_unique.join(' ');
+               let gameCategoryName_list = gameCategoryName_unique.join(' ');
+               let gameCatLabel_list = gameCatLabel_unique.length > 0 ? `<div style="padding-bottom:10px;"> ${gameCatLabel_unique.join(' ')} </div>` : ``;
+
+               itemFeatured = eachObj.featured == 1 ? 1 : 0;
+
+               /************************
+               *************************
+               **** Reward requirements
+               *************************
+               *************************/
+
+               let bonusSwitch = eachObj.bonusSwitch;
+               let bonusCond = eachObj.bonusCond;
+               let bonusReward = eachObj.bonusReward;
+
+               let bonusCondHtml = "";
+               let bonusRewardHtml = "";
+               let bonusHtml = "";
+
+               // Bonus msg
+               let bonusRewardCalculation = '';
+               if (bonusSwitch == 1) {
+
+                    // Package bonusType Bonus
+                    if (eachObj.bonusType == 1) {
+                         bonusTypeSectionTitle = 'Bonus Requirement';
+                         // Package Reward type
+                         if (bonusReward == null || bonusReward == 2 && (eachObj.bonus > 0 && eachObj.bonusMax > 0)) {
+                              bonusRewardHtml = `
+                                             	Deposit must be at least ${formatCurrency(eachObj.minDeposit, r.currency)} to get a bonus of <span class="text-info-highlight">${eachObj.bonus}%</span> of your deposit amount. The maximum bonus you can receive is ${formatCurrency(eachObj.bonusMax, r.currency)}.
+											`;
+
+                              bonusRewardCalculation = `Total Deposit ${formatCurrency(1000, r.currency)} + Bonus given ${eachObj.bonus}% = ${formatCurrency(1000 * (eachObj.bonus / 100), r.currency)} Amount will be credited to your account`
+                         }
+
+                         if (bonusReward == 1) {
+                              bonusRewardHtml = `Deposit must be at least ${formatCurrency(eachObj.minDeposit, r.currency)} to get a <span class="text-info-highlight">free ${formatCurrency(eachObj.bonusAmount, r.currency)}</span>.`;
+                              bonusRewardCalculation = `Total Deposit ${formatCurrency(1000, r.currency)} + Bonus given ${formatCurrency(eachObj.bonusAmount, r.currency)} = ${formatCurrency(1000 + (eachObj.bonusAmount), r.currency)} Amount will be credited to your account`
+                         }
+                    }
+
+                    // Package bonusType Free Credit
+                    if (eachObj.bonusType == 2) {
+                         bonusTypeSectionTitle = 'Free Credit Requirement';
+                         // Package Reward type
+                         if (bonusReward == null || bonusReward == 2) {
+                              bonusRewardHtml = `Deposit must be at least ${formatCurrency(eachObj.minDeposit, r.currency)}${r.currency} to get a bonus of <span class="text-info-highlight">${eachObj.bonus}%</>span> of your deposit amount. The maximum bonus you can receive is ${eachObj.bonusMax}${r.currency}.`;
+                         }
+
+                         if (bonusReward == 1) {
+                              bonusRewardHtml = `Deposit must be at least ${formatCurrency(eachObj.minDeposit, r.currency)}${r.currency} to get a free ${formatCurrency(eachObj.bonusMax, r.currency)}.`;
+                         }
+                    }
+
+                    bonusCategoryHtml = ``;
+
+                    if (bonusCond == null || bonusCond == 2) {
+                         // Package bonusCond turnover or winlose
+
+                         if (eachObj['bonus-game-cat'] == 'bonus-game-list') {
+                              bonusCondHtml = `Turnover x${eachObj.bonusRollover} on any of these product.`;
+                              bonusCategoryHtml = `Valid product: ${gameCategories}`
+                         }
+
+                         if (eachObj['bonus-game-cat'] == 'bonus-game-cat') {
+                              bonusCondHtml = `Turnover x${eachObj.bonusRollover} on any of these categories.`;
+                              bonusCategoryHtml = `Valid categories: ${gameCategories}`
+                         }
+                    } else if (bonusCond == 1) {
+                         // Package bonusCond Deposit
+                         bonusCondHtml = `Total deposit must be atleast ${eachObj.bonusDeposit}${r.currency} to received the bonus`;
+                    }
+
+               }
+
+               bonusCondHtml = bonusCondHtml.length > 0 ? `<p class="bonusCond"><i class="fas fa-asterisk asterisk-bullet"></i> ${bonusCondHtml}</p>` : '';
+
+               bonusRewardHtml = bonusRewardHtml.length > 0 ? `<p class="bonusReward"><i class="fas fa-asterisk asterisk-bullet"></i> ${bonusRewardHtml}</p>` : '';
+               bonusRewardHtml = bonusRewardHtml.concat(bonusRewardCalculation.length > 0 ? `<br><span class='text-info-highlight'>For example:</span>` : '');
+               bonusRewardHtml = bonusRewardHtml.concat(bonusRewardCalculation.length > 0 ? `<p>${bonusRewardCalculation}</p>` : '');
+               let minDepositHtml = `No minimum deposit`;
+               if (eachObj.minDeposit > 0) {
+                    minDepositHtml = `Minimum must be atleast ${eachObj.minDeposit} ${r.currency}.`
+               }
+               minDepositHtml = `<p class="minDeposit"><i class="fas fa-asterisk asterisk-bullet"></i> ${minDepositHtml}</p>`
+
+               let commSwitch = eachObj.commSwitch;
+               let commNone = eachObj.commNone;
+               let commHtml = "";
+               if (commSwitch == 1) {
+                    commHtml = `<br/><a href="javascript:getPkgComms('${eachObj.id}', '${eachObj.title}')" class="label label-sm label-primary">${getMessage('lbl_commission') + " " + getMessage('lbl_override')}</a>`;
+               }
+
+               let disabled = "";
+               
+               disabled = (!eachObj.isValidTarget || !eachObj.isValidSchedule) ? "disabled" : "";
+
+
+               let btn_onclick = `onclick='utils.alert("${getMessage("lbl_pleaseLoginOrRegister")}")'`;
+               let btn_label = getMessage('lbl_joinNow');
+
+               if (r.username) {
+                    btn_onclick = `onclick="utils.gourl('/account/recharge/apply?retUrl=%2Faccount%2Frecharge&pkgId=${eachObj.id}');"`;
+                    btn_label = getMessage('lbl_apply');
+               }
+
+               if (!eachObj.isValidTarget) {
+                    btn_onclick = `onclick='utils.alert("${getMessage("msg_notEligibleForThisPackage")}", "error")'`;
+                    btn_label = getMessage('lbl_apply');
+               }
+
+               if (!eachObj.isValidSchedule) {
+                    btn_onclick = `onclick='utils.alert("${getMessage("msg_packageIsUnavailableAtTheMoment")}", "warning")'>`;
+                    btn_label = getMessage('lbl_apply');
+               }
+
+               if (activePkg && activePkg.packageId != eachObj.id) {
+                    btn_onclick = `onclick='utils.alert("${getMessage("msg_activePackageDetected")}", "error")'`;
+                    btn_label = getMessage('lbl_apply');
+               }
+
+               if (r.pendingDepositMessage) {
+                    btn_onclick = `onclick='utils.alertAndRedirect("${r.pendingDepositTitle}", "${r.pendingDepositMessage}", "warning")'`;
+                    btn_label = getMessage('lbl_apply');
+               }
+
+               buttonHtml = `<button type="button" class="btn btn-primary" ${btn_onclick}>${btn_label}</button>`;
+
+
+
+               //Terms And Conditions
+               let tabNavHtml =
+                    `<ul  class="nav nav-tabs">
+								<li class="active"><a href="#term_${eachObj.id}" data-toggle="tab">${getMessage('lbl_termsAndConditions')}</a></li>
+								<li><a href="#schedule_${eachObj.id}" data-toggle="tab">${getMessage('lbl_openingTime')}</a></li>
+								<li><a href="#target_${eachObj.id}" data-toggle="tab">${getMessage('lbl_eligibleCriteria')}</a></li>
+							</ul>`;
+               let title = eachObj.titles[current_lang] ? eachObj.titles[current_lang] : eachObj.titles["en"];
+               let image = eachObj.images[current_lang] ? eachObj.images[current_lang] : eachObj.images["en"];
+               let mode = eachObj.modes[current_lang] ? eachObj.modes[current_lang] : eachObj.modes["en"];
+               let term = eachObj.terms[current_lang] ? eachObj.terms[current_lang] : eachObj.terms["en"];
+               if (!image) { image = ""; }
+               if (!term) { term = "-"; }
+               let openingTime = !eachObj.startDate || !eachObj.endDate ? getMessage("lbl_forever") : eachObj.startDate + " <br/>-<br/> " + eachObj.endDate;
+
+               let targetDetails = eachObj.targetDetails;
+               let targetHtml = ``;//`<h4><i class="fa fa-users" aria-hidden="true"></i><span>${getMessage('lbl_eligibleCriteria')}</span></h4>`;
+               let targetLabel = "";
+               let targetMsg = "";
+               if (targetDetails) {
+                    let targetType = targetDetails.type;
+                    let minimum = targetDetails.min;
+                    let maximum = targetDetails.max;
+                    let targetDay = targetDetails.day;
+                    let unit = targetDetails.unit;
+                    if (unit && unit == "currency") unit = "#(masterInfo.currency.toUpperCase())";
+                    /* console.log("pkgTitle: " + title + "; " + targetType + " " + minimum + " - " + maximum + " in " + targetDay + " targetDays"); */
+                    if (!minimum && minimum !== 0 && !maximum && maximum !== 0 && !targetDay && targetDay !== 0) {
+                         targetMsg = `${getMessage(targetType)}`;
+                    } else {
+                         if (minimum == maximum) {
+                              targetMsg = `${getMessage(targetType)} ${minimum} ${getMessage(unit)} ${getMessage("lbl_inPast")} ${targetDay} ${getMessage("lbl_days")}`;
+                         } else {
+                              targetMsg = `${getMessage(targetType)} <span class='text-info-highlight'>${getMessage("lbl_between")} ${minimum} - ${maximum} ${getMessage(unit)}</span> ${getMessage("lbl_inPast")} ${targetDay} ${getMessage("lbl_days")}`;
+                         }
+                    }
+                    targetHtml += `<p class='eligible_criteria_section'><i class="fas fa-asterisk asterisk-bullet"></i> ${targetMsg}</p>`;
+                    targetLabel = `
+                                        <span class="label label-danger">${getMessage(targetType)}</span>
+                                        <span class="labels">
+                                            <span class="label" data-toggle="tooltip" data-original-title="${targetMsg}">
+                                                <i class="fa fa-info-circle" aria-hidden="true" style="color:grey;"></i>
+                                            </span>
+                                        </span>
+                                        `;
+               } else {
+                    targetHtml += ''//`<p class='eligible_criteria_section'>${getMessage("lbl_noCriteria")}</p>`
+               }
+
+               let scheduleList = eachObj.scheduleList;
+               let scheduleHtml = ''//`<p style='font-weight:bold;'>Promotion availablility</p>`;`<p><i class="fa fa-clock" aria-hidden="true"></i> <span>${getMessage('lbl_openingTime')}</span></p>`;
+               let dailyArr = [];
+               let weeklyArr = [];
+               let monthlyArr = [];
+               if (scheduleList && scheduleList.length > 0) {
+                    $.each(scheduleList, function (index, schedule) {
+                         let type = schedule.type;
+                         let startTime = schedule.startTime;
+                         let endTime = schedule.endTime;
+                         if (type == "daily") {
+                              dailyArr.push(startTime + " - " + endTime);
+                         } else if (type == "weekly") {
+                              let startDay = schedule.startDay;
+                              weeklyArr.push(getMessage("lbl_" + startDay) + " " + startTime + " - " + endTime);
+                         } else if (type == "monthly") {
+                              let startDate = schedule.startDate;
+                              switch (startDate) {
+                                   case 1: startDate += "st"; break;
+                                   case 2: startDate += "nd"; break;
+                                   case 3: startDate += "rd"; break;
+                                   default: startDate += "th"; break;
+                              }
+                              monthlyArr.push(startDate + " " + startTime + " - " + endTime);
+                         }
+                    });
+
+                    $.each(dailyArr, function (index, daily) {
+                         if (index == 0) scheduleHtml += "<p style='font-weight:bold;'>" + getMessage("lbl_daily") + "</p>";
+                         scheduleHtml += daily + "<br/>";
+                    });
+
+                    $.each(weeklyArr, function (index, weekly) {
+                         if (index == 0) scheduleHtml += "<p style='font-weight:bold;'>" + getMessage("lbl_weekly") + "</p>";
+                         scheduleHtml += weekly + "<br/>";
+                    });
+
+                    $.each(monthlyArr, function (index, monthly) {
+                         if (index == 0) scheduleHtml += "<p style='font-weight:bold;'>" + getMessage("lbl_monthly") + "</p>";
+                         scheduleHtml += monthly + "<br/>";
+                    });
+               } else {
+                    scheduleHtml += `<p >24 Hours, 7 Days a week</p>`//`<p style='font-weight:bold;'>${getMessage("24/7")}</p>`;
+               }
+
+               // Withdraw condition
+
+
+               let withdrawCondHtml = '';
+               if (eachObj.mode == 1) {
+                    withdrawCondHtml = `Bet amount must be atleast <span class="text-info-highlight">${eachObj.modes[getLang()]} x${eachObj.rollover}</span> to be able to withdraw.`
+               }
+
+               if (eachObj.mode == 0) {
+                    withdrawCondHtml = `Winlose amount must be atleast <span class="text-info-highlight">${eachObj.modes[getLang()]} x${eachObj.rollover}</span> to be able to withdraw.`
+               }
+               withdrawCondHtml = withdrawCondHtml.length > 0 ? `<p class="withdrawCond"><i class="fas fa-asterisk asterisk-bullet"></i> ${withdrawCondHtml}</p>` : '';
+
+               let cancelCondHtml = '';
+               if (eachObj.selfCond > 0) {
+                    if ((eachObj.selfType == 0) && (eachObj.selfCond < 500)) {
+                         cancelCondHtml = `Lose amount must be atleast ${cancelConditionMsg} of their balance to be able to withdraw.`
+                    }
+
+                    if (eachObj.selfType == 1) {
+                         cancelCondHtml = `The balance must be below ${cancelConditionMsg} to be able to withdraw.`
+                    }
+               }
+               cancelCondHtml = cancelCondHtml.length > 0 ? `<p class="cancelCond"><i class="fas fa-asterisk asterisk-bullet"></i> ${cancelCondHtml}</p>` : '';
+
+               let countdownDate = new Date(eachObj.endDate).getTime();
+
+               let countdownFunction = setInterval(function () {
+                    let now = new Date().getTime();
+                    let distance = countdownDate - now;
+
+                    let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                    let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                    //$("#countdown").html(days + " days, " + hours + " hours, " + minutes + " minutes, " + seconds + " seconds");
+                    $(`#day-${eachObj.id.trim()}`).text((days > 0) ? days : eachObj.endDate ? 0 : '-');
+                    $(`#hour-${eachObj.id.trim()}`).text((hours > 0) ? hours : eachObj.endDate ? 0 : '-');
+                    $(`#min-${eachObj.id.trim()}`).text((minutes > 0) ? minutes : eachObj.endDate ? 0 : '-');
+                    $(`#sec-${eachObj.id.trim()}`).text((seconds > 0) ? seconds : eachObj.endDate ? 0 : '-');
+                    if (distance < 0) {
+                         clearInterval(countdownFunction);
+                         //$("#countdown").html("Countdown expired");
+                    }
+               }, 1000);
+
+               list = `
+						<!-- Items -->
+						<a class="item" data-fancybox data-options='{"clickSlide": "false"}' href="#terms_${eachObj.id}" 
+							 pkg-id="${eachObj.id.trim()}" pkg-title="${eachObj.title.trim()}" pkg-min-deposit="${eachObj.minDeposit ?? 0}" class="pkg-item promotion-list ${eachObj.id} ${gameId_list.toLowerCase()} ${gameType_list.toLowerCase()} ${gameCategoryName_list.toLowerCase()} ${disabled}">
+							<p>${title}</p>
+							<h5 style="font-weight:bold">${caption}</h5>
+						</a>
+						
+						<!-- Terms & Conditions -->
+                                        <div id="terms_${eachObj.id}" style="display:none;max-width: 800px; width: 90%; overflow: hidden;padding:40px 0; margin:40px 0; border: 2px solid var(--primary-color)!important;background:black!important;" class="promotion-detail-popup-modal-body">
+                                             <div style="background: rgb(255,255,255,0.9);border-radius: 10px;border: 2px solid #5cb85c;">
+                                                  <div class="col-md-12">
+                                                       <img src="${image ? image : 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}" style="max-width:100%;height: 210px;width: 100%;box-shadow: inset 0px 0px 8px 0px #a7a7a7;border-radius: 8px;background: #e5f0fe;" onerror="this.src='data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='">
+                                                  </div>
+                                                  <div class="col-md-12">
+                                                       <div class="col-md-9 row" style="padding-top:15px;">
+                                                            <div class="col-md-12 row">
+                                                                 <p style="
+                                                                 margin-top: 0;
+                                                                 margin-bottom: 0;
+                                                                 font-size: 1.6rem;
+                                                                 font-weight: 700;
+                                                                 width: 100%;
+                                                                 ">
+                                                                 ${title}
+                                                                 </p>
+                                                            </div>
+                                                            <small for="" class="col-md-12 row">
+                                                                 <span>
+                                                                 Usage Limit:
+                                                                 </span>
+                                                                 <span class="text-muted">
+                                                                      ${eachObj.useLimit} (${getMessage("lbl_" + eachObj.cycle)})
+                                                                 </span>
+                                                            </small>
+                                                            <div>
+                                                                      <button class="col-md-6 btn btn-primary" onclick="choosePackage('${eachObj.id}')" style="margin-top: 10px;" ${buttonHtml.length == 0 ? 'disabled' : ''}>
+                                                                      ${buttonHtml.length == 0 ? 'Not Available' : "Available"}
+                                                                      </button>
+                                                            </div>
+                                                       </div>
+                                                       <div class="col-md-3 row" style="padding-top:15px;">
+                                                                 <div class="row">
+                                                                      <div class="col-md-12">
+                                                                      ${gameCatLabel_list}
+                                                                      </div>
+                                                                 </div>
+                                                                 <div class="row">
+                                                                           <div class="col-md-12">
+                                                                           <p style="margin-top: 0;margin-bottom: 0;font-size: 0.6rem;font-weight: 700;color: #8e8e8e;">
+                                                                                Promotion Ends
+                                                                           </p>
+                                                                           </div>
+                                                                           <div class="col-md-12 valid_time">
+                                                                                <div class="time-colon">
+                                                                                     <div class="time-text">
+                                                                                          <span class="num day_num" id="day-${eachObj.id.trim()}">0</span>
+                                                                                          <span class="text">Day</span>
+                                                                                     </div>
+                                                                                     <span class="colon"></span>
+                                                                                </div>
+                                                                                <div class="time-colon">
+                                                                                     <div class="time-text">
+                                                                                          <span class="num hour_num" id="hour-${eachObj.id.trim()}">0</span>
+                                                                                          <span class="text">Hour</span>
+                                                                                     </div>
+                                                                                     <span class="colon">:</span>
+                                                                                </div>
+                                                                                <div class="time-colon">
+                                                                                     <div class="time-text">
+                                                                                          <span class="num min_num" id="min-${eachObj.id.trim()}">0</span>
+                                                                                          <span class="text">Mins</span>
+                                                                                     </div>
+                                                                                     <span class="colon">:</span>
+                                                                                </div>
+                                                                                <div class="time-colon">
+                                                                                     <div class="time-text">
+                                                                                          <span class="num sec_num" id="sec-${eachObj.id.trim()}">0</span>
+                                                                                          <span class="text">Secs</span>
+                                                                                     </div>
+                                                                                </div>
+                                                                           </div>
+                                                                 </div>
+
+                                                            </div>
+
+                                                       </div>
+
+                                                  </div>
+
+                                                  <div class="col-md-12">
+                                                       <div class="package-info-content-group" id="accordion">
+                                                                 <div class="package-info-content package-info-content-default">
+                                                                      <div class="package-info-content-heading">
+                                                                           <div class="package-info-content-title">
+                                                                                <span data-toggle="collapse-override" data-parent="#accordion" href="#pkg-section-availaibility_${eachObj.id}" aria-expanded="true" class="d-flex">
+                                                                                <div style="width:100%;">
+                                                                                     Promotion availability
+                                                                                </div>
+                                                                                <div class="package-info-content-title-arrow"><i class="fas fa-chevron-up"></i></div>
+                                                                                </span>
+                                                                           </div>
+
+                                                                      </div>
+                                                                      <div id="pkg-section-availaibility_${eachObj.id}" class="package-info-content-collapse collapse in">
+                                                                           <div class="package-info-content-body">
+                                                                                <div class="row">
+                                                                                     <div class="col-md-12">
+                                                                                     ${scheduleHtml}
+                                                                                     </div>
+                                                                                </div>
+                                                                           </div>
+                                                                      </div>
+                                                                 </div>
+                                                                 <div class="package-info-content package-info-content-default">
+                                                                      <div class="package-info-content-heading">
+                                                                           <div class="package-info-content-title">
+                                                                                <span data-toggle="collapse-override" data-parent="#accordion" href="#pkg-section-eligible_${eachObj.id}" aria-expanded="true" class="d-flex">
+                                                                                <div style="width:100%;">
+                                                                                ${bonusTypeSectionTitle}
+                                                                                </div>
+                                                                                <div class="package-info-content-title-arrow"><i class="fas fa-chevron-up"></i></div>
+                                                                                </span>
+                                                                           </div>
+                                                                      </div>
+                                                                      <div id="pkg-section-eligible_${eachObj.id}" class="package-info-content-collapse collapse in">
+                                                                           <div class="package-info-content-body">
+                                                                                <div class="row">
+                                                                                     <div class="col-md-12">
+                                                                                     ${targetHtml}
+                                                                                     </div>
+                                                                                     <div class="col-md-12">
+                                                                                     ${bonusCondHtml}
+                                                                                     ${bonusCategoryHtml}
+                                                                                     </div>
+                                                                                     <div class="col-md-12">
+                                                                                     ${minDepositHtml}
+                                                                                     </div>
+                                                                                     <div class="col-md-12">
+                                                                                     ${bonusRewardHtml}
+                                                                                     </div>
+
+                                                                                </div>
+                                                                           </div>
+                                                                      </div>
+                                                                 </div>
+                                                                 <div class="package-info-content package-info-content-default">
+                                                                      <div class="package-info-content-heading">
+                                                                           <div class="package-info-content-title">
+                                                                                <span data-toggle="collapse-override" data-parent="#accordion" href="#pkg-section-withdraw-requirement_${eachObj.id}" class="d-flex">
+                                                                                <div style="width:100%;">
+                                                                                Withdraw Requirement
+                                                                                </div>
+                                                                                <div class="package-info-content-title-arrow"><i class="fas fa-chevron-up"></i></div>
+                                                                                </span>
+                                                                           </div>
+                                                                      </div>
+                                                                      <div id="pkg-section-withdraw-requirement_${eachObj.id}" class="package-info-content-collapse collapse in">
+                                                                           <div class="package-info-content-body">
+                                                                                <div class="row">
+                                                                                     <div class="col-md-12">
+                                                                                          ${withdrawCondHtml}
+                                                                                     </div>
+
+                                                                                     <div class="col-md-12">
+                                                                                          ${cancelCondHtml}
+                                                                                     </div>
+                                                                                </div>
+
+                                                                           </div>
+                                                                      </div>
+                                                                 </div>
+                                                                 <div class="package-info-content package-info-content-default">
+                                                                      <div class="package-info-content-heading">
+                                                                           <div class="package-info-content-title">
+                                                                                <span data-toggle="collapse-override" data-parent="#accordion" href="#pkg-section-terms-and-condition_${eachObj.id}" class="d-flex">
+                                                                                <div style="width:100%;">
+                                                                                Terms and Condition
+                                                                                </div>
+                                                                                <div class="package-info-content-title-arrow"><i class="fas fa-chevron-up"></i></div>
+                                                                                </span>
+                                                                           </div>
+                                                                      </div>
+                                                                      <div id="pkg-section-terms-and-condition_${eachObj.id}" class="package-info-content-collapse collapse in" >
+                                                                           <div class="package-info-content-body" >
+                                                                                <div class="row" style="overflow-x: auto;">
+                                                                                     <div class="col-md-12" >
+                                                                                          ${term}
+                                                                                     </div>
+                                                                                </div>
+
+                                                                           </div>
+                                                                      </div>
+                                                                 </div>
+                                                       </div>
+                                                  </div>
+                                                  <div class="col-md-12">
+                                                       <button class="col-lg-12 col-md-12 col-sm-12 col-xs-12 btn btn-primary" onclick="choosePackage('${eachObj.id}')" ${buttonHtml.length == 0 ? 'disabled' : ''}>
+                                                       ${buttonHtml.length == 0 ? 'Not Available' : "Available"}
+                                                       </button>
+                                                  </div>
+                                             </div>
+                                        </div>
+                              `;
+
+               $("#promotionList " + eleSelector).append(list);
+               $('[data-toggle="tooltip"]').tooltip();
+          });
+     }
+
+
+     function getPkgBonus(id, title) {
+          id = "#bonusMsg_" + id;
+          let msg = $(id).html();
+          layer.msg(msg, {
+               time: 3000,
+               icon: 0,
+               closeBtn: 1,
+               skin: 'layui-layer-rim', //加上边框
+          });
+     }
+
+     function getPkgComms(id, title) {
+          $.post("/account/recharge/getPkgComms", { pkgId: id }, function (r) {
+               if (r.state && r.state == "fail") {
+                    utils.alert(r.msg);
+               } else {
+                    let data = r.data;
+                    let pkgInfo = r.pkgInfo;
+                    let html = `<div class="container" style="max-height:90vh; max-width:90vw;"><table class="table table-bordered">
+							<tbody>`;
+                    let prevType = "";
+
+                    if (pkgInfo.commSwitch == 0) {
+                         //Commission OFF
+                         html += `
+										<tr>
+											<th colspan="100%">
+												${getMessage('msg_configCommApply')}
+											</th>
+										</tr>`;
+                    } else {
+                         //Commission ON
+                         //Double Commission Apply
+                         if (pkgInfo.commNone == 0) {
+                              html += `<tr>
+												<th colspan="100%">
+													<i class="fa fa-warning text-orange"></i> ${getMessage("msg_doubleCommApply")} (${getMessage("lbl_configComm")} + ${getMessage("lbl_packageComm")})
+												</th>
+											</tr>`;
+                         }
+
+                         // Package Commission No Data
+                         if (data.length <= 0) {
+                              html += `
+										<tr>
+											<th colspan="100%">
+												<i class="fa fa-warning text-orange"></i> ${getMessage('lbl_packageComm')} ${getMessage('lbl_noData')}
+											</th>
+										</tr>`;
+                         }
+
+                         $.each(data, function (index, commInfo) {
+                              let commType = commInfo.type;
+                              if (prevType != commType && index != 0) {
+                                   html += `</td></tr>`
+                              }
+                              if (prevType != commType) {
+                                   html += `
+										<tr>
+										<th colspan="50%">${commInfo.type}</td>
+										<th colspan="50%">${commInfo.percentage}%</td>
+										</tr>
+										<tr>
+										<td colspan="100%">
+									`;
+                                   prevType = commType;
+                              }
+
+                              let isCat = commInfo.isCat;
+                              let name = "";
+                              if (isCat == 1) {
+                                   name = `<span class='label label-warning' style="margin-right:8px;">${commInfo.name}</span>`
+                              } else {
+                                   name = `<span class="col-xs-12 col-sm-6 col-md-4">${commInfo.name} <span class='label label-info pull-right'>${commInfo.catName}</span></span>`
+                              }
+                              html += `${name}`;
+                         });
+                    }
+                    html += `</tbody></table></div>`;
+
+                    layer.open({
+                         type: 1,
+                         title: getMessage('lbl_commission') + " [" + title + "]",
+                         skin: 'layui-layer-rim', //加上边框
+                         area: ['90%', 'auto'], //宽高
+                         content: html
+                    });
+
+               }
+          });
+     }
+
+     function choosePackage(id) {
+          if ($(`[pkg-id="${id}"]`).length > 0) {
+               $("#next-btn").click();
+
+               $('#pkgId').val(id);
+
+               name = $(`[pkg-id="${id}"]`).attr('pkg-title');
+               minDeposit = $(`[pkg-id="${id}"]`).attr('pkg-min-deposit');
+
+               $('#packageName').val(name);
+               $('#minDeposit').text(minDeposit);
+
+
+
+               $('#luckydrawImage').show();
+               $('#rechargeForm').show();
+               $('#rechargePkg').hide();
+
+               $('#retTab').show();
+               $('#retUrl').hide();
+
+               $('.gameCat_selector').hide();
+               $("#amount").attr('min', minDeposit);
+               $("#amount").val(minDeposit);
+          }
+     }
+</script>
